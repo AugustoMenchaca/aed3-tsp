@@ -16,7 +16,6 @@ Projeto para solucionar instâncias do Caixeiro Viajante (TSP) euclidiano utiliz
 - `include/`: Cabeçalhos (`.h`/`.hpp`).
 - `data/`: Instâncias TSP (`.txt`).
 - `docs/`: Relatórios e apresentações.
-- `scripts/`: Scripts auxiliares (ex: automação de testes).
 
 ## 🚀 Como Executar
 *(Instruções de compilação em breve)*
