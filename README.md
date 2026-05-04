@@ -2,9 +2,10 @@
 
 Projeto para solucionar instâncias do Caixeiro Viajante (TSP) euclidiano utilizando algoritmos exatos e aproximativos.
 
-## 👥 Dupla
+## 👥 Trio
 - Augusto Menchaca
 - Pedro Izkovitz
+- Samuel Lettnin
 
 ## 🛠️ Tecnologias
 - C++17
