@@ -48,7 +48,7 @@ int main() {
 
     int opcao = -1;
     while (true) {
-        std::cout << "\n======= MENU SISTEMA TSP (Qt Edition) =======" << std::endl;
+        std::cout << "\n======= MENU SISTEMA TSP =======" << std::endl;
         std::cout << "1. Listar e escolher um arquivo especifico" << std::endl;
         std::cout << "2. Rodar lote (Brute Force apenas no viavel n <= 12)" << std::endl;
         std::cout << "3. Rodar lote COMPLETO (Brute Force em tudo)" << std::endl;
@@ -61,7 +61,7 @@ int main() {
         if (opcao == 1) {
             std::vector<std::string> nomes;
             int i = 1;
-            std::cout << "\nArquivos encontrados via QDir:" << std::endl;
+            std::cout << "\nArquivos encontrados:" << std::endl;
             for (auto const& [nome, dados] : arquivosCarregados) {
                 std::cout << i << ". " << nome << " (n=" << dados.totalCidades << ")" << std::endl;
                 nomes.push_back(nome);
@@ -81,7 +81,7 @@ int main() {
 
         } else if (opcao == 2 || opcao == 3) {
             bool forcarTudo = (opcao == 3);
-            std::cout << "\nIniciando processamento em lote (" << (forcarTudo ? "COMPLETO" : "VIAVEL") << ")..." << std::endl;
+            std::cout << "\nIniciando processamento em lote..." << std::endl;
             
             for (auto const& [nome, dados] : arquivosCarregados) {
                 executarAlgoritmos(dados.nomeArquivo, dados.matrizAdjacencia, dados.totalCidades, forcarTudo);
