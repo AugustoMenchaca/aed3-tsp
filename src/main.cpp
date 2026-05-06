@@ -1,48 +1,67 @@
 #include "../include/BruteForce.hpp"
+#include "../include/Prim.hpp"
+#include "../include/DFS.hpp"
 
 #include <chrono>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 
-static std::vector<std::vector<int>> readMatrix(const std::string& path, int& n) {
-    std::ifstream in(path);
-    if (!in) {
-        std::cerr << "Could not open " << path << "\n";
-        std::exit(1);
-    }
-
-    std::vector<std::vector<int>> rows;
-    std::string line;
-    while (std::getline(in, line)) {
-        std::istringstream iss(line);
-        std::vector<int> row;
-        int v;
-        while (iss >> v) row.push_back(v);
-        if (!row.empty()) rows.push_back(std::move(row));
-    }
-
-    n = (int)rows.size();
-    return rows;
-}
-
 int main(int argc, char** argv) {
     if (argc < 2) {
-        std::cerr << "usage: " << argv[0] << " <tsp_file>\n";
+        std::cerr << "uso: " << argv[0] << " <arquivo> [--exato-max N]\n";
         return 1;
     }
 
-    int n = 0;
-    auto adj = readMatrix(argv[1], n);
-    std::cout << "file: " << argv[1] << "  n=" << n << "\n";
+    int exatoMax = 14;
+    for (int i = 2; i < argc; i++) {
+        std::string arg = argv[i];
+        if (arg == "--exato-max" && i + 1 < argc) {
+            exatoMax = std::atoi(argv[++i]);
+        }
+    }
 
-    auto t0 = std::chrono::steady_clock::now();
-    int cost = BruteForce::solve(adj, n);
-    auto t1 = std::chrono::steady_clock::now();
+    std::ifstream arquivo(argv[1]);
+    if (!arquivo) {
+        std::cerr << "nao foi possivel abrir " << argv[1] << "\n";
+        return 1;
+    }
 
-    double secs = std::chrono::duration<double>(t1 - t0).count();
-    std::cout << "cost = " << cost << "   time = " << secs << " s\n";
+    std::vector<std::vector<int>> matriz;
+    std::string linha;
+    while (std::getline(arquivo, linha)) {
+        std::istringstream iss(linha);
+        std::vector<int> linhaMatriz;
+        int v;
+        while (iss >> v) linhaMatriz.push_back(v);
+        if (!linhaMatriz.empty()) matriz.push_back(std::move(linhaMatriz));
+    }
+
+    int n = (int)matriz.size();
+    std::cout << "arquivo: " << argv[1] << "  n=" << n << "\n";
+
+    auto inicioAprox = std::chrono::steady_clock::now();
+    std::vector<int> pais = Prim::solve(matriz, n);
+    int custoAprox = DFS::resolver(matriz, pais, n);
+    auto fimAprox = std::chrono::steady_clock::now();
+    double tempoAprox = std::chrono::duration<double>(fimAprox - inicioAprox).count();
+    std::cout << "aproximativo (Prim+DFS):  custo=" << custoAprox
+              << "  tempo=" << tempoAprox << "s\n";
+
+    if (n <= exatoMax) {
+        auto inicioExato = std::chrono::steady_clock::now();
+        int custoExato = BruteForce::solve(matriz, n);
+        auto fimExato = std::chrono::steady_clock::now();
+        double tempoExato = std::chrono::duration<double>(fimExato - inicioExato).count();
+        std::cout << "exato (brute force):      custo=" << custoExato
+                  << "  tempo=" << tempoExato << "s\n";
+    } else {
+        std::cout << "exato (brute force):      pulado (n=" << n
+                  << " > " << exatoMax << ", inviavel)\n";
+    }
+
     return 0;
 }
