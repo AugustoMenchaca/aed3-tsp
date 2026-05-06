@@ -11,17 +11,17 @@ std::vector<int> Prim::solve(const std::vector<std::vector<int>>& adj, int n) {
     pq.push({0, 0});
 
     while (!pq.empty()) {
-        int u = pq.top().second;
+        int indice = pq.top().second;
         pq.pop();
 
-        if (inMST[u]) continue;
-        inMST[u] = true;
+        if (inMST[indice]) continue;
+        inMST[indice] = true;
 
-        for (int v = 0; v < n; v++) {
-            if (adj[u][v] != 0 && !inMST[v] && adj[u][v] < dist[v]) {
-                dist[v] = adj[u][v];
-                parent[v] = u;
-                pq.push({dist[v], v});
+        for (int nei = 0; nei < n; nei++) {
+            if (adj[indice][nei] != 0 && !inMST[nei] && adj[indice][nei] < dist[nei]) {
+                dist[nei] = adj[indice][nei];
+                parent[nei] = indice;
+                pq.push({dist[nei], nei});
             }
         }
     }
