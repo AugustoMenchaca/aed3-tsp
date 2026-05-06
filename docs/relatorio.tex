@@ -1,0 +1,71 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[portuguese]{babel}
+\usepackage{geometry}
+\geometry{a4paper, margin=2.5cm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{setspace}
+
+\title{\textbf{Relatório Técnico: Problema do Caixeiro Viajante (TSP)}\\
+\large Algoritmos Exatos e Aproximativos}
+\author{
+    Augusto Menchaca \\
+    Pedro Izkovitz \\
+    Samuel Lettnin \\
+    \textit{Ciência da Computação - AED III - UFPel}
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Este relatório apresenta os resultados obtidos na resolução de instâncias do Problema do Caixeiro Viajante (TSP) utilizando duas abordagens distintas: um algoritmo exato (Brute Force) e uma heurística aproximativa baseada na Árvore Geradora Mínima (Algoritmo de Prim) combinada com Busca em Profundidade (DFS). O objetivo é avaliar a viabilidade de tempo e a qualidade do custo de rotas geradas por ambas as estratégias em grafos de diferentes tamanhos ($n$).
+\end{abstract}
+
+\section{Objetivo}
+O objetivo central deste trabalho é implementar e analisar comparativamente algoritmos para o TSP euclidiano completo. Busca-se demonstrar na prática o crescimento fatorial da complexidade de tempo de soluções exatas (Força Bruta) e justificar o uso de soluções heurísticas (Prim + DFS) que, embora não garantam o caminho mínimo absoluto, oferecem aproximações em tempo computacional viável (polinomial).
+
+\section{Metodologia}
+A implementação foi desenvolvida em C++17, utilizando o \textit{framework} Qt Core para garantir robustez na leitura de arquivos e formatação de matrizes de adjacência. O sistema possui um processamento em lote que avalia as instâncias automaticamente. 
+Para instâncias onde $n \le 12$, o algoritmo exato foi executado. Para $n > 12$, o algoritmo exato foi bloqueado devido à inviabilidade de tempo (limitação fatorial $\mathcal{O}(n!)$), sendo aplicado apenas o algoritmo aproximativo.
+
+\section{Resultados e Tempos de Execução}
+Os testes foram realizados em cinco instâncias de tamanhos variados ($n = 6, 11, 15, 22, 29$). A Tabela \ref{tab:resultados} compila os custos e os tempos de execução registrados em ambiente local.
+
+\begin{table}[h]
+\centering
+\caption{Comparativo de Custos e Tempos de Execução}
+\label{tab:resultados}
+\vspace{0.2cm}
+\begin{tabular}{@{}l c c cc cc@{}}
+\toprule
+\textbf{Arquivo} & \textbf{$n$} & \textbf{Ótimo} & \multicolumn{2}{c}{\textbf{Aproximativo (Prim+DFS)}} & \multicolumn{2}{c}{\textbf{Exato (Brute Force)}} \\
+\cmidrule(lr){4-5} \cmidrule(l){6-7}
+ & & & Custo & Tempo (s) & Custo & Tempo (s) \\
+\midrule
+tsp2\_1248.txt  & 6  & 1248  & 1272   & 0.000037 & 1248 & 0.000026 \\
+tsp1\_253.txt   & 11 & 253   & 281    & 0.000044 & 253  & 0.502453 \\
+tsp3\_1194.txt  & 15 & 1194  & 1519   & 0.000085 & --   & Inviável \\
+tsp4\_7013.txt  & 22 & 7013  & 8308   & 0.000137 & --   & Inviável \\
+tsp5\_27603.txt & 29 & 27603 & 35019  & 0.000249 & --   & Inviável \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Análise e Conclusões}
+A partir dos dados levantados, destaca-se que:
+\begin{itemize}
+    \item \textbf{Explosão Combinatória:} Fica evidente a natureza NP-Difícil do TSP. Enquanto para $n=6$ a Força Bruta resolve o problema em microssegundos (0.000026s), um aumento simples para $n=11$ eleva o tempo de processamento para meio segundo (0.502453s). Testes adicionais demonstraram de forma drástica o impacto do crescimento fatorial: para $n=13$ o tempo de execução saltou para 2 minutos e 9 segundos, e para $n=14$ o algoritmo demandou 29 minutos e 41 segundos para finalizar. A partir de $n \ge 15$, a Força Bruta torna-se computacionalmente inviável para execução convencional.
+    \item \textbf{Eficiência da Aproximação:} A heurística de Prim + DFS manteve uma constância extraordinária de tempo. Mesmo para a maior instância ($n=29$), o algoritmo entregou um ciclo hamiltoniano em apenas 0.000249s.
+    \item \textbf{Qualidade da Aproximação (Gap):} Como o custo ótimo de cada instância está indicado em seu próprio nome (ex: o arquivo \texttt{tsp5\_27603.txt} possui custo ótimo de 27603), é possível aferir o \textit{gap} da heurística para todos os cenários. A aproximação esteve consistentemente próxima do custo ideal. Para a maior instância ($n=29$), o ótimo é 27603 e a aproximação obteve 35019 (um acréscimo de $\sim$26.8\%). Este é um desvio perfeitamente aceitável e esperado de uma aproximação baseada em MST, especialmente considerando que o tempo de execução foi reduzido de eras computacionais (na Força Bruta) para meros milissegundos.
+\end{itemize}
+
+Em suma, a abordagem aproximativa (Prim + DFS) demonstrou ser a única estratégia sustentável para problemas de roteamento de média ou larga escala, consolidando a importância de métodos heurísticos na Ciência da Computação estrutural.
+
+\end{document}
