@@ -4,20 +4,21 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <QString>
 
 struct DadosTSP {
-    std::string nomeArquivo;
+    QString nomeArquivo;
     int totalCidades;
     std::vector<std::vector<int>> matrizAdjacencia;
 };
 
 class ArquivoManager {
 public:
-    // Le um arquivo especifico e retorna a matriz
-    static std::vector<std::vector<int>> lerArquivo(const std::string& caminho, int& n);
+    // Le um arquivo especifico usando QFile e QTextStream
+    static std::vector<std::vector<int>> lerArquivo(const QString& caminho, int& n);
 
-    // Varre o diretorio e armazena todos os arquivos .txt encontrados
-    static std::map<std::string, DadosTSP> carregarTodosOsArquivos(const std::string& diretorio);
+    // Varre o diretorio usando QDir e armazena todos os arquivos .txt encontrados
+    static std::map<std::string, DadosTSP> carregarTodosOsArquivos(const QString& diretorio);
 };
 
 #endif

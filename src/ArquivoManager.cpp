@@ -1,71 +1,70 @@
 #include "../include/ArquivoManager.hpp"
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <filesystem>
+#include <QFile>
+#include <QTextStream>
+#include <QDir>
+#include <QStringList>
+#include <QRegularExpression>
 
-namespace fs = std::filesystem;
-
-std::vector<std::vector<int>> ArquivoManager::lerArquivo(const std::string& caminho, int& n) {
-    std::ifstream arquivoEntrada(caminho);
-    if (!arquivoEntrada) {
-        std::cerr << "Nao foi possivel abrir o arquivo: " << caminho << "\n";
+std::vector<std::vector<int>> ArquivoManager::lerArquivo(const QString& caminho, int& n) {
+    QFile arquivoEntrada(caminho);
+    if (!arquivoEntrada.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return {};
     }
 
-    // Verificacao para o arquivo tsp4 que esta duplicado
-    bool ehArquivoTsp4 = (caminho.find("tsp4_7013.txt") != std::string::npos);
-    int limiteLinhas = ehArquivoTsp4 ? 22 : 1000000; // Valor alto caso nao seja o tsp4
-    int contadorLinhas = 0;
-
+    QTextStream fluxoDados(&arquivoEntrada);
     std::vector<std::vector<int>> matrizLocal;
-    std::string linha;
-    
-    while (std::getline(arquivoEntrada, linha) && contadorLinhas < limiteLinhas) {
-        std::istringstream iss(linha);
+
+    // Define o limite para evitar a duplicacao do tsp4 (22x22)
+    int limiteMatriz = caminho.contains("tsp4_7013.txt") ? 22 : 10000;
+
+    while (!fluxoDados.atEnd() && (int)matrizLocal.size() < limiteMatriz) {
+        QString linhaAtual = fluxoDados.readLine().trimmed();
+        if (linhaAtual.isEmpty()) continue;
+
+        // Separa os valores tratando qualquer espaco ou tab
+        QStringList listaValores = linhaAtual.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+        
         std::vector<int> linhaMatriz;
-        int valor;
-        int contadorColunas = 0;
-        int limiteColunas = ehArquivoTsp4 ? 22 : 1000000;
-        
-        while (iss >> valor && contadorColunas < limiteColunas) {
-            linhaMatriz.push_back(valor);
-            contadorColunas++;
+        for (int i = 0; i < listaValores.size() && i < limiteMatriz; i++) {
+            linhaMatriz.push_back(listaValores[i].toInt());
         }
-        
+
         if (!linhaMatriz.empty()) {
             matrizLocal.push_back(linhaMatriz);
-            contadorLinhas++;
         }
     }
 
     n = (int)matrizLocal.size();
+    arquivoEntrada.close();
     return matrizLocal;
 }
 
-std::map<std::string, DadosTSP> ArquivoManager::carregarTodosOsArquivos(const std::string& diretorio) {
+std::map<std::string, DadosTSP> ArquivoManager::carregarTodosOsArquivos(const QString& diretorio) {
     std::map<std::string, DadosTSP> mapaArquivos;
+    QDir pasta(diretorio);
 
-    try {
-        for (const auto& entrada : fs::directory_iterator(diretorio)) {
-            if (entrada.is_regular_file() && entrada.path().extension() == ".txt") {
-                std::string caminho = entrada.path().string();
-                std::string nome = entrada.path().filename().string();
-                
-                int n = 0;
-                std::vector<std::vector<int>> matriz = lerArquivo(caminho, n);
-                
-                if (n > 0) {
-                    DadosTSP dados;
-                    dados.nomeArquivo = nome;
-                    dados.totalCidades = n;
-                    dados.matrizAdjacencia = matriz;
-                    mapaArquivos[nome] = dados;
-                }
-            }
+    if (!pasta.exists()) {
+        qWarning() << "Diretorio nao encontrado:" << diretorio;
+        return mapaArquivos;
+    }
+
+    // Filtra apenas arquivos .txt
+    QStringList filtros;
+    filtros << "*.txt";
+    QStringList listaArquivos = pasta.entryList(filtros, QDir::Files);
+
+    for (const QString& nome : listaArquivos) {
+        QString caminhoCompleto = pasta.absoluteFilePath(nome);
+        int n = 0;
+        std::vector<std::vector<int>> matriz = lerArquivo(caminhoCompleto, n);
+
+        if (n > 0) {
+            DadosTSP dados;
+            dados.nomeArquivo = nome;
+            dados.totalCidades = n;
+            dados.matrizAdjacencia = matriz;
+            mapaArquivos[nome.toStdString()] = dados;
         }
-    } catch (const std::exception& e) {
-        std::cerr << "Erro ao ler diretorio: " << e.what() << "\n";
     }
 
     return mapaArquivos;
