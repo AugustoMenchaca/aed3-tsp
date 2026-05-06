@@ -33,7 +33,6 @@ std::vector<std::vector<int>> ArquivoManager::lerArquivo(QString caminho) {
         }
     }
 
-    n = (int)matrizLocal.size();
     arquivoEntrada.close();
     return matrizLocal;
 }
