@@ -11,7 +11,7 @@
 #include <QString>
 
 // Funcao auxiliar para rodar os algoritmos e imprimir resultados
-void executarAlgoritmos(const QString& nomeArquivo, const std::vector<std::vector<int>>& matrizAdj, int totalCidades, bool forcarBruteForce) {
+void executarAlgoritmos(QString nomeArquivo, const std::vector<std::vector<int>>& matrizAdj, int totalCidades, bool forcarBruteForce) {
     std::cout << "\n---------------------------------------------------" << std::endl;
     std::cout << "Processando: " << nomeArquivo.toStdString() << " (n=" << totalCidades << ")" << std::endl;
 

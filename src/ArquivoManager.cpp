@@ -4,8 +4,7 @@
 #include <QDir>
 #include <QStringList>
 #include <QRegularExpression>
-
-std::vector<std::vector<int>> ArquivoManager::lerArquivo(const QString& caminho, int& n) {
+std::vector<std::vector<int>> ArquivoManager::lerArquivo(QString caminho) {
     QFile arquivoEntrada(caminho);
     if (!arquivoEntrada.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return {};
@@ -23,7 +22,7 @@ std::vector<std::vector<int>> ArquivoManager::lerArquivo(const QString& caminho,
 
         // Separa os valores tratando qualquer espaco ou tab
         QStringList listaValores = linhaAtual.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
-        
+
         std::vector<int> linhaMatriz;
         for (int i = 0; i < listaValores.size() && i < limiteMatriz; i++) {
             linhaMatriz.push_back(listaValores[i].toInt());
@@ -39,7 +38,7 @@ std::vector<std::vector<int>> ArquivoManager::lerArquivo(const QString& caminho,
     return matrizLocal;
 }
 
-std::map<std::string, DadosTSP> ArquivoManager::carregarTodosOsArquivos(const QString& diretorio) {
+std::map<std::string, DadosTSP> ArquivoManager::carregarTodosOsArquivos(QString diretorio) {
     std::map<std::string, DadosTSP> mapaArquivos;
     QDir pasta(diretorio);
 
@@ -55,13 +54,12 @@ std::map<std::string, DadosTSP> ArquivoManager::carregarTodosOsArquivos(const QS
 
     for (const QString& nome : listaArquivos) {
         QString caminhoCompleto = pasta.absoluteFilePath(nome);
-        int n = 0;
-        std::vector<std::vector<int>> matriz = lerArquivo(caminhoCompleto, n);
+        std::vector<std::vector<int>> matriz = lerArquivo(caminhoCompleto);
 
-        if (n > 0) {
+        if (!matriz.empty()) {
             DadosTSP dados;
             dados.nomeArquivo = nome;
-            dados.totalCidades = n;
+            dados.totalCidades = (int)matriz.size();
             dados.matrizAdjacencia = matriz;
             mapaArquivos[nome.toStdString()] = dados;
         }

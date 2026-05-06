@@ -15,10 +15,10 @@ struct DadosTSP {
 class ArquivoManager {
 public:
     // Le um arquivo especifico usando QFile e QTextStream
-    static std::vector<std::vector<int>> lerArquivo(const QString& caminho, int& n);
+    static std::vector<std::vector<int>> lerArquivo(QString caminho);
 
     // Varre o diretorio usando QDir e armazena todos os arquivos .txt encontrados
-    static std::map<std::string, DadosTSP> carregarTodosOsArquivos(const QString& diretorio);
+    static std::map<std::string, DadosTSP> carregarTodosOsArquivos(QString diretorio);
 };
 
 #endif
