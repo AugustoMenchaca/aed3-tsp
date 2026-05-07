@@ -9,85 +9,116 @@
 #include <string>
 #include <iomanip>
 #include <QString>
+#include <sstream>
 
-// Funcao auxiliar para rodar os algoritmos e imprimir resultados
+std::string formatarTempo(double segundos) {
+  std::stringstream ss;
+  ss << std::fixed << std::setprecision(3);
+  if (segundos < 1.0) {
+    ss << segundos * 1000.0 << " ms";
+  } else if (segundos < 60.0) {
+    ss << segundos << " s";
+  } else {
+    int minutos = (int)(segundos / 60);
+    double segRestantes = segundos - (minutos * 60);
+    ss.str("");
+    ss << minutos << " min " << std::fixed << std::setprecision(2) << segRestantes << " s";
+  }
+  return ss.str();
+}
+
 void executarAlgoritmos(QString nomeArquivo, const std::vector<std::vector<int>>& matrizAdj, int totalCidades, bool forcarBruteForce) {
-    std::cout << "\n---------------------------------------------------" << std::endl;
-    std::cout << "Processando: " << nomeArquivo.toStdString() << " (n=" << totalCidades << ")" << std::endl;
 
-    // 1. Calculando via Aproximacao (Prim + DFS)
-    auto tempoInicioAprox = std::chrono::steady_clock::now();
-    std::vector<int> paisMST = Prim::solve(matrizAdj, totalCidades);
-    int custoAprox = DFS::resolver(matrizAdj, paisMST, totalCidades);
-    auto tempoFimAprox = std::chrono::steady_clock::now();
-    double duracaoAprox = std::chrono::duration<double>(tempoFimAprox - tempoInicioAprox).count();
-    
-    std::cout << "[APROX] Prim + DFS -> Custo: " << custoAprox << " | Tempo: " << std::fixed << std::setprecision(6) << duracaoAprox << "s" << std::endl;
+  auto tempoInicioAprox = std::chrono::steady_clock::now();
+  std::vector<int> arvoreResultante = Prim::solve(matrizAdj, totalCidades);
+  int custoAprox = DFS::resolver(matrizAdj, arvoreResultante, totalCidades);
+  auto tempoFimAprox = std::chrono::steady_clock::now();
 
-    // 2. Calculando via Brute Force (Exato)
-    if (forcarBruteForce || totalCidades <= 12) {
-        auto tempoInicioBF = std::chrono::steady_clock::now();
-        int custoExato = BruteForce::solve(matrizAdj, totalCidades);
-        auto tempoFimBF = std::chrono::steady_clock::now();
-        double duracaoBF = std::chrono::duration<double>(tempoFimBF - tempoInicioBF).count();
-        std::cout << "[EXATO] Brute Force -> Custo: " << custoExato << " | Tempo: " << duracaoBF << "s" << std::endl;
-    } else {
-        std::cout << "[EXATO] Brute Force -> Ignorado (Tempo inviavel para n=" << totalCidades << ")" << std::endl;
-    }
+  double duracaoAprox = std::chrono::duration<double>(tempoFimAprox - tempoInicioAprox).count();
+  
+  std::cout << "\n[APROX] Prim + DFS -> Custo: " << custoAprox << " | Tempo: " << formatarTempo(duracaoAprox) << std::endl;
+
+  if (forcarBruteForce || totalCidades <= 12) {
+    auto tempoInicioBF = std::chrono::steady_clock::now();
+    int custoExato = BruteForce::solve(matrizAdj, totalCidades);
+    auto tempoFimBF = std::chrono::steady_clock::now();
+
+    double duracaoBF = std::chrono::duration<double>(tempoFimBF - tempoInicioBF).count();
+    std::cout << "[EXATO] Brute Force -> Custo: " << custoExato << " | Tempo: " << formatarTempo(duracaoBF) << std::endl;
+  } else {
+    std::cout << "[EXATO] Brute Force -> Ignorado (Tempo inviavel para n=" << totalCidades << ")" << std::endl;
+  }
 }
 
 int main() {
-    QString pastaData = "data";
-    // Carrega todos os arquivos da pasta usando a infraestrutura Qt
-    std::map<std::string, DadosTSP> arquivosCarregados = ArquivoManager::carregarTodosOsArquivos(pastaData);
+  QString pastaData = "data";
+  int opcaoMenu = -1;
+  
+  std::map<std::string, DadosTSP> arquivosCarregados = ArquivoManager::carregarTodosOsArquivos(pastaData);
 
-    if (arquivosCarregados.empty()) {
-        std::cerr << "Nenhum arquivo .txt encontrado na pasta data" << std::endl;
-        return 1;
+  if (arquivosCarregados.empty()) {
+    std::cerr << "Nenhum arquivo .txt encontrado na pasta data" << std::endl;
+    return 1;
+  }
+
+  while (true) {
+    std::cout << "\n1. Listar e escolher um arquivo especifico" << std::endl;
+    std::cout << "2. Rodar Brute Force apenas ate n=12 (viavel)" << std::endl;
+    std::cout << "3. Rodar COMPLETO (Brute Force em tudo)" << std::endl;
+    std::cout << "0. Sair" << std::endl;
+    std::cout << "Escolha uma opcao: ";
+    
+    if (!(std::cin >> opcaoMenu)) break;
+    
+    if (opcaoMenu == 0) {
+      std::cout << "Finalizando o Programa" << std::endl;
+      break;
     }
 
-    int opcao = -1;
-    while (true) {
-        std::cout << "\n======= MENU SISTEMA TSP =======" << std::endl;
-        std::cout << "1. Listar e escolher um arquivo especifico" << std::endl;
-        std::cout << "2. Rodar lote (Brute Force apenas no viavel n <= 12)" << std::endl;
-        std::cout << "3. Rodar lote COMPLETO (Brute Force em tudo)" << std::endl;
-        std::cout << "0. Sair" << std::endl;
-        std::cout << "Escolha uma opcao: ";
+    switch (opcaoMenu) {
+      case 1: {
+        std::vector<std::string> listaNomes;
+        int contador = 1;
         
-        if (!(std::cin >> opcao)) break;
-        if (opcao == 0) break;
-
-        if (opcao == 1) {
-            std::vector<std::string> nomes;
-            int i = 1;
-            std::cout << "\nArquivos encontrados:" << std::endl;
-            for (auto const& [nome, dados] : arquivosCarregados) {
-                std::cout << i << ". " << nome << " (n=" << dados.totalCidades << ")" << std::endl;
-                nomes.push_back(nome);
-                i++;
-            }
-
-            int escolhaArq;
-            std::cout << "Escolha o numero do arquivo: ";
-            if (!(std::cin >> escolhaArq)) break;
-
-            if (escolhaArq > 0 && escolhaArq <= (int)nomes.size()) {
-                std::string chave = nomes[escolhaArq - 1];
-                executarAlgoritmos(arquivosCarregados[chave].nomeArquivo, arquivosCarregados[chave].matrizAdjacencia, arquivosCarregados[chave].totalCidades, false);
-            } else {
-                std::cout << "Opcao de arquivo invalida!" << std::endl;
-            }
-
-        } else if (opcao == 2 || opcao == 3) {
-            bool forcarTudo = (opcao == 3);
-            std::cout << "\nIniciando processamento em lote..." << std::endl;
-            
-            for (auto const& [nome, dados] : arquivosCarregados) {
-                executarAlgoritmos(dados.nomeArquivo, dados.matrizAdjacencia, dados.totalCidades, forcarTudo);
-            }
+        std::cout << "\nArquivos encontrados:" << std::endl;
+        for (auto const& [nome, dados] : arquivosCarregados) {
+          std::cout << contador << ". " << nome << " (n=" << dados.totalCidades << ")" << std::endl;
+          listaNomes.push_back(nome);
+          contador++;
         }
-    }
 
-    return 0;
+        int escolha;
+        std::cout << "Escolha o numero do arquivo: ";
+        if (!(std::cin >> escolha)) break;
+
+        if (escolha > 0 && escolha <= (int)listaNomes.size()) {
+          std::string chave = listaNomes[escolha - 1];
+          executarAlgoritmos(arquivosCarregados[chave].nomeArquivo, arquivosCarregados[chave].matrizAdjacencia, arquivosCarregados[chave].totalCidades, false);
+        } else {
+          std::cout << "Opcao de arquivo invalida" << std::endl;
+        }
+        break;
+      }
+
+      case 2: {
+        for (auto const& [nome, dados] : arquivosCarregados) {
+          executarAlgoritmos(dados.nomeArquivo, dados.matrizAdjacencia, dados.totalCidades, false);
+        }
+        break;
+      }
+
+      case 3: {
+        for (auto const& [nome, dados] : arquivosCarregados) {
+          executarAlgoritmos(dados.nomeArquivo, dados.matrizAdjacencia, dados.totalCidades, true);
+        }
+        break;
+      }
+
+      default:
+        std::cout << "Opcao invalida" << std::endl;
+        break;
+    }
+  }
+
+  return 0;
 }
