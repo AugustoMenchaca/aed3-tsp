@@ -68,4 +68,15 @@ A partir dos dados levantados, destaca-se que:
 
 Em suma, a abordagem aproximativa (Prim + DFS) demonstrou ser a única estratégia sustentável para problemas de roteamento de média ou larga escala, consolidando a importância de métodos heurísticos na Ciência da Computação estrutural.
 
+\section{Passo-a-Passo para Execução}
+Devido à utilização do \textit{framework} Qt Core para a leitura otimizada e robusta dos arquivos de instâncias, o projeto utiliza o sistema de \textit{build} CMake. A maneira recomendada de compilar e executar o sistema é através do \textbf{Qt Creator}:
+
+\begin{enumerate}
+    \item Abra o \textbf{Qt Creator}.
+    \item Selecione \texttt{File > Open File or Project...} e escolha o arquivo \texttt{CMakeLists.txt} localizado na raiz do projeto.
+    \item Na tela de configuração do projeto (\textit{Configure Project}), selecione um Kit compatível com sua instalação do Qt (ex: Desktop Qt 6.x.x MSVC ou MinGW) e clique em \texttt{Configure}.
+    \item Com o projeto configurado, basta pressionar \texttt{Ctrl + R} (ou clicar no botão de \textit{Run} verde no canto inferior esquerdo) para compilar e iniciar o sistema.
+    \item O menu interativo será exibido no terminal/console do Qt Creator, permitindo a seleção de arquivos individuais ou o processamento em lote.
+\end{enumerate}
+
 \end{document}
