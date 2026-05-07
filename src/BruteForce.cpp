@@ -4,23 +4,23 @@
 #include <limits>
 #include <numeric>
 
-int BruteForce::solve(const std::vector<std::vector<int>>& adj, int n) {
-    std::vector<int> perm(n - 1);
-    std::iota(perm.begin(), perm.end(), 1);
+int BruteForce::solve(const std::vector<std::vector<int>>& weight, int cities) {
+    std::vector<int> tour(cities - 1);
+    std::iota(tour.begin(), tour.end(), 1);
 
-    int melhorCusto = std::numeric_limits<int>::max();
+    int record = std::numeric_limits<int>::max();
 
     do {
-        int custo = adj[0][perm[0]];
-        for (int i = 0; i < n - 2; i++) {
-            custo += adj[perm[i]][perm[i + 1]];
+        int sum = weight[0][tour[0]];
+        for (int i = 0; i < cities - 2; i++) {
+            sum += weight[tour[i]][tour[i + 1]];
         }
-        custo += adj[perm[n - 2]][0];
+        sum += weight[tour[cities - 2]][0];
 
-        if (custo < melhorCusto) {
-            melhorCusto = custo;
+        if (sum < record) {
+            record = sum;
         }
-    } while (std::next_permutation(perm.begin(), perm.end()));
+    } while (std::next_permutation(tour.begin(), tour.end()));
 
-    return melhorCusto;
+    return record;
 }

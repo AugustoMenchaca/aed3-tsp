@@ -5,7 +5,7 @@
 
 class BruteForce {
 public:
-    static int solve(const std::vector<std::vector<int>>& adj, int n);
+    static int solve(const std::vector<std::vector<int>>& weight, int cities);
 };
 
 #endif
